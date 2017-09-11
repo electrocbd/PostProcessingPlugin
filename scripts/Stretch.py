@@ -282,7 +282,7 @@ class Stretcher():
         dmin_tri is the minimum distance between two consecutive points
         of an acceptable triangle
         """
-        dmin_tri = self.line_width / 2.0
+        dmin_tri = 0.5
         iextra_base = np.floor_divide(len(orig_seq), 3) # Nb of extra points
         ibeg = 0 # Index of first point of the triangle
         iend = 0 # Index of the third point of the triangle
@@ -325,9 +325,10 @@ class Stretcher():
                 relpos = 0.5 # To avoid division by zero or precision loss
             projection = (pos_before[ibeg] + relpos * (pos_after[iend] - pos_before[ibeg]))
             dist_from_proj = np.sqrt(((projection - step) ** 2).sum(0))
-            if dist_from_proj > 0.001: # Move central point only if points are not aligned
+            if dist_from_proj > 0.0003: # Move central point only if points are not aligned
                 modif_seq[i] = (step - (self.wc_stretch / dist_from_proj)
                                 * (projection - step))
+
         return
 
     def wideTurn(self, orig_seq, modif_seq):
@@ -411,8 +412,6 @@ class Stretcher():
                 modif_seq[ibeg] = modif_seq[ibeg] + xperp * self.pw_stretch
             elif not materialleft and materialright:
                 modif_seq[ibeg] = modif_seq[ibeg] - xperp * self.pw_stretch
-            if materialleft and materialright:
-                modif_seq[ibeg] = orig_seq[ibeg] # Surrounded by walls, don't move
 
 # Setup part of the stretch plugin
 class Stretch(Script):
@@ -437,7 +436,7 @@ class Stretch(Script):
                     "description": "Distance by which the points are moved by the correction effect in corners. The higher this value, the higher the effect",
                     "unit": "mm",
                     "type": "float",
-                    "default_value": 0.08,
+                    "default_value": 0.1,
                     "minimum_value": 0,
                     "minimum_value_warning": 0,
                     "maximum_value_warning": 0.2
@@ -448,7 +447,7 @@ class Stretch(Script):
                     "description": "Distance by which the points are moved by the correction effect when two lines are nearby. The higher this value, the higher the effect",
                     "unit": "mm",
                     "type": "float",
-                    "default_value": 0.08,
+                    "default_value": 0.1,
                     "minimum_value": 0,
                     "minimum_value_warning": 0,
                     "maximum_value_warning": 0.2
